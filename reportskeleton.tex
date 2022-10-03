@@ -1,0 +1,70 @@
+\documentclass[a4]{article}
+\usepackage{rsllisting}
+\lstset{language=rsl}
+
+%Comments in the Latex source are written after the % sign
+
+\title{Course 02263 Mandatory Assignment 1, 2022} 
+
+\author{name1 (study number1),\\ 
+        name2 (study number2)}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This document contains a solution to ... . 
+
+\section{Requirements Specification}
+
+
+\lstinputlisting{ColouringBasics.rsl}  
+
+{\em Here you must informally explain the purpose of your auxiliary functions.}
+
+
+\lstinputlisting{ColouringReq.rsl}  
+
+{\em Here you must informally explain which requirements the pre
+  condition expresses.}
+
+{\em Here you must informally explain which requirements the post
+  condition expresses.}
+
+\section{Explicit Specification}
+
+\lstinputlisting{ColouringEx.rsl}  
+
+{\em Here you must  explain the idea behind your algorithm.}
+{\em If you in this scheme introduce auxiliary functions in order to explicitly
+  define the function, you must explain these as well.}
+
+\section{Testing by Translation to SML}
+
+\subsection{Test Specification}
+
+\lstinputlisting{testColouringEx.rsl}
+        
+{\em Here you must  explain your test strategy and the purpose of the individual test
+  cases.}
+
+
+\subsection{Test Results}
+
+
+The results of excecuting the SML translation of the RSL test cases are:
+
+{\em Here you must  insert the output of the test run.}
+
+
+
+\noindent From this we can conclude ...
+{\em (tell whether the results are as expected)}.
+
+
+\end{document}
