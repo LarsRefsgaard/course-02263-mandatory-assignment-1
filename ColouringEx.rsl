@@ -1,10 +1,10 @@
-ColouringBasics
+./ColouringBasics
 
 scheme ColouringEx =
-extend ColouringBasics with 
-class
-  value
-   col : Relation -~-> Colouring
-   col(r) is ...
-   pre isRelation(r)
-end
+  extend ColouringBasics with
+  class
+    value
+      col : Relation -~-> Colouring
+      col(r) as cols post isCorrectColouring(cols, r) pre isRelation(r)
+      is
+  end

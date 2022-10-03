@@ -8,16 +8,23 @@ scheme ColouringBasics =
 
     value /* auxiliary functions */
       areNb : Piece >< Piece >< Relation -> Bool
-      areNb(cn1, cn2, r) is (cn1, cn2) isin r,
+      areNb(cn1, cn2, r) is (cn1, cn2) isin r \/ (cn2, cn1) isin r,
 
       -- a piece can't be a neighbour of itself
       -- a piece can't be a neighbour of a piece that is not in the relation
       -- a piece can't have no neighbours
-      -- isCorrectColouring : Colouring >< Relation -> Bool
-      -- isCorrectColouring(cols, r) is ...,
+      --
 
       isRelation : Relation -> Bool
-      isRelation(r) is true,
+      isRelation(r) is
+        (all (p1, p2) : Piece >< Piece :- (p1, p2) isin r => p1 ~= p2),
+
+        -- Check if a piece is assigned two or more colors.
+      pieceIsOnlyColouredOnce : Colouring -> Bool
+      pieceIsOnlyColouredOnce(c) is
+
+      -- Check that every piece is colored
+      everyPieceIsColoured : Colouring >< Relation -> Bool
 
       isCorrectColouring : Colouring >< Relation -> Bool
       isCorrectColouring(cols, r) is
@@ -36,10 +43,14 @@ scheme ColouringBasics =
         {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}, {"P8"}}
 
     test_case
-      [t1]
-        areNb("P1", "P2", r) = true,
-      [t2]
-        areNb("P1", "P8", r) = false,
-      [t3]
-        isCorrectColouring(colouring, r) = true
+      [areNb_returns_true_if_pieces_are_neighbours]
+        areNb("P1", "P2", r),
+      [areNb_returns_true_if_pieces_are_neighbours_reversed]
+        areNb("P2", "P1", r),
+      [areNb_returns_false_if_pieces_are_not_neighbours]
+        ~ areNb("P1", "P8", r),
+      [isCorrectColouring_returns_true_if_colouring_is_correct]
+        isCorrectColouring(colouring, r),
+      [isCorrectColouring_returns_false_if_colouring_is_not_correct]
+        ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r)
   end

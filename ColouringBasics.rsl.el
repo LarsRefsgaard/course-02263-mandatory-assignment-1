@@ -1,1 +1,0 @@
-(setq rsl-overlay-poss nil)
