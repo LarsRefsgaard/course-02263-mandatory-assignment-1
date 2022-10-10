@@ -10,47 +10,84 @@ scheme ColouringBasics =
       areNb : Piece >< Piece >< Relation -> Bool
       areNb(cn1, cn2, r) is (cn1, cn2) isin r \/ (cn2, cn1) isin r,
 
-      -- a piece can't be a neighbour of itself
-      -- a piece can't be a neighbour of a piece that is not in the relation
-      -- a piece can't have no neighbours
-      --
-
+      -- REMEMBER TO CHECK THAT(p1, p2) AND (p2, p1) does not occur
       isRelation : Relation -> Bool
       isRelation(r) is
         (all (p1, p2) : Piece >< Piece :- (p1, p2) isin r => p1 ~= p2),
 
-        -- Check if a piece is assigned two or more colors.
+      -- Check if a piece is assigned two or more colors. (intersection
+      -- of all sets should be the empty set)
       pieceIsOnlyColouredOnce : Colouring -> Bool
-      pieceIsOnlyColouredOnce(c) is
+      pieceIsOnlyColouredOnce(colouring) is
+        (all c : Colour :-
+           c isin colouring =>
+             (all c2 : Colour :- c2 isin colouring /\ c ~= c2 => c inter c2 = {})
+        ),
+
+      -- auxiliary function: Piece is in coloring
+      inColouring : Piece >< Colouring -> Bool
+      inColouring(piece, cols) is
+        (exists c : Colour :- c isin cols /\ piece isin c),
 
       -- Check that every piece is colored
       everyPieceIsColoured : Colouring >< Relation -> Bool
+      everyPieceIsColoured(cols, r) is
+        (all (p1, p2) : (Piece >< Piece) :-
+           (p1, p2) isin r => inColouring(p1, cols) /\ inColouring(p2, cols)),
 
+      -- Well formed relation, piece is coloured and coloured only once
+      -- and checks that no two neighbours have the same color
       isCorrectColouring : Colouring >< Relation -> Bool
       isCorrectColouring(cols, r) is
-        isRelation(r) /\
+        isRelation(r) /\ pieceIsOnlyColouredOnce(cols) /\
+        everyPieceIsColoured(cols, r) /\
         (all c : Colour :-
            c isin cols =>
              (all p : Piece :-
                 p isin c =>
                   ~ (exists p2 : Piece :- p2 isin c /\ areNb(p, p2, r)))),
 
-      r : Relation =
-        {("P1", "P2"), ("P1", "P3"), ("P2", "P4"), ("P2", "P5"), ("P3", "P7"),
-         ("P4", "P5"), ("P4", "P6"), ("P4", "P7"), ("P4", "P8"), ("P5", "P6"),
-         ("P6", "P8"), ("P7", "P8")},
-      colouring : Colouring =
-        {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}, {"P8"}}
+      -- Checks if a piece can be assigned a color - i.e. if it is not
+      -- already assigned a color and if it is not a neighbour of a piece
+      pieceCanBeAssignedColour : Piece >< Colour >< Relation -> Bool
+      pieceCanBeAssignedColour(p, c, r) is
+        ~ (exists pn : Piece :- pn isin c /\ areNb(p, pn, r)),
 
-    test_case
-      [areNb_returns_true_if_pieces_are_neighbours]
-        areNb("P1", "P2", r),
-      [areNb_returns_true_if_pieces_are_neighbours_reversed]
-        areNb("P2", "P1", r),
-      [areNb_returns_false_if_pieces_are_not_neighbours]
-        ~ areNb("P1", "P8", r),
-      [isCorrectColouring_returns_true_if_colouring_is_correct]
-        isCorrectColouring(colouring, r),
-      [isCorrectColouring_returns_false_if_colouring_is_not_correct]
-        ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r)
+
+      -- returns set of all unique pieces that exist in all the relations
+      setOfAllPieces : Relation -> Piece-set
+      setOfAllPieces(r) is
+        if r = {} then {}
+        else
+          let (p1, p2) = hd r, remaining = r \ {(p1, p2)} in
+            {p1, p2} union setOfAllPieces(remaining)
+          end
+        end,
+
+      -- returns a Colouring containing set of unique colours with pieces having same assigned colour
+      -- if a colour
+      assignColour : Piece >< Colouring >< Colouring >< Relation -> Colouring
+      assignColour(p, colouring, accumulator, r) is
+        if colouring = {} then accumulator union {{p}}
+        else
+          let col = hd colouring, remaining = colouring \ {col} in
+            if pieceCanBeAssignedColour(p, col, r)
+            then accumulator union {col union {p}} union remaining
+            else assignColour(p, remaining, (accumulator union {col}), r)
+            end
+          end
+        end,
+
+      findColouring : Piece-set >< Colouring >< Relation -> Colouring
+      findColouring(pieceset, colouring, r) is
+        if pieceset = {} then colouring
+        else
+          let
+            p1 = hd pieceset,
+            remaining = pieceset \ {p1},
+            newcolouring = assignColour(p1, colouring, {}, r)
+          in
+            findColouring(remaining, newcolouring, r)
+          end
+        end
   end

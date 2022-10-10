@@ -5,6 +5,6 @@ scheme ColouringEx =
   class
     value
       col : Relation -~-> Colouring
-      col(r) as cols post isCorrectColouring(cols, r) pre isRelation(r)
-      is
+      col(r) is findColouring(setOfAllPieces(r), {}, r) as cols
+      post isCorrectColouring(cols, r) pre isRelation(r)
   end
