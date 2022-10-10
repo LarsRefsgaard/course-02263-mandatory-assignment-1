@@ -1,13 +1,48 @@
-ColouringEx
+./././././././././ColouringEx
 
 scheme testColouringEx =
-extend ColouringEx with 
-class
-  value 
-    ... 
+  extend ColouringEx with
+  class
+    value
+      r : Relation =
+        {("P1", "P2"), ("P1", "P3"), ("P2", "P4"), ("P2", "P5"), ("P3", "P7"),
+         ("P4", "P5"), ("P4", "P6"), ("P4", "P7"), ("P4", "P8"), ("P5", "P6"),
+         ("P6", "P8"), ("P7", "P8")},
+      colouring : Colouring =
+        {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}, {"P8"}}
 
-  test_case 
-    ...
+    test_case
+      [areNb]
+        areNb("P1", "P2", r),
+      areNb("P2", "P1", r),
+      ~ areNb("P1", "P8", r),
+      -- [areNb_returns_true_if_pieces_are_neighbours]
+      -- [areNb_returns_true_if_pieces_are_neighbours_reversed]
+      -- [areNb_returns_false_if_pieces_are_not_neighbours]
+      [isCorrectColouring]
+        isCorrectColouring(colouring, r),
+      ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r),
+      -- [isCorrectColouring_returns_true_if_colouring_is_correct]
+      -- [isCorrectColouring_returns_false_if_colouring_is_not_correct]
+      [pieceIsOnlyColouredOnce]
+        pieceIsOnlyColouredOnce(colouring),
+      ~ pieceIsOnlyColouredOnce({{"P1", "P4"}, {"P1", "P2", "P3"}}),
+      -- [pieceIsOnlyColouredOnce_returns_true_if_correct]
+      -- [pieceIsOnlyColouredOnce_returns_false_if_coloured_more_than_once]
+      [everyPieceIsColoured]
+        everyPieceIsColoured(colouring, r),
+      ~ everyPieceIsColoured({{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, r),
+      -- [everyPieceIsColoured_returns_true_if_correct]
+      -- [everyPieceIsColoured_returns_false_if_not]
+      [PieceCanBeAssignedColour]
+        ~ PieceCanBeAssignedColour("P2", {"P1", "P4"}, r),
+      PieceCanBeAssignedColour("P1", {"P7", "P5"}, r),
+      PieceCanBeAssignedColour("P1", {"P7", "P8", "P1"}, r),
+      -- [PieceCanBeAssignedColour_returns_false_because_it_cant_be_added]
+      -- [PieceCanBeAssignedColour_returns_true_because_it_can_be_added]
+      -- [PieceCanBeAssignedColour_returns_true_even_when_the_piece_is_already_there]
 
- end
- 
+      [SetOfAllPieces]
+        SetOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"},
+      ~ (SetOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5"})
+  end
