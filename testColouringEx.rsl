@@ -32,6 +32,20 @@ scheme testColouringEx =
         isCorrectColouring(colouring, r),
       [isCorrectColouring_returns_false_if_colouring_is_not_correct]
         ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r),
+      [isCorrectColouring_returns_false_if_piece_coloured_twice]
+        ~ isCorrectColouring(
+             {{"P1", "P4"}, {"P6", "P2", "P3"}, {"P8", "P5"}, {"P7", "P1"}}, r),
+      [isCorrectColouring_returns_false_if_not_all_pieces_are_coloured]
+        ~ isCorrectColouring(
+             {{"P1", "P4"}, {"P6", "P2", "P3"}, {"P5"}, {"P7"}}, r),
+      [isCorrectColouring_returns_false_if_neighbours_have_same_colour]
+        ~ isCorrectColouring(
+             {{"P1", "P4"}, {"P2", "P3"}, {"P5", "P7"}, {"P6", "P8"}}, r),
+      [isCorrectColouring_returns_false_if_r_is_not_a_relation]
+        ~ isCorrectColouring(
+             our_colouring,
+             {("P1", "P2"), ("P1", "P3"), ("P2", "P4"), ("P2", "P5"),
+              ("P6", "P7"), ("P4", "P7"), ("P4", "P8"), ("P2", "P1")}),
       [allPiecesOnlyColouredOnce_returns_true_if_correct]
         allPiecesOnlyColouredOnce(colouring),
       [allPiecesOnlyColouredOnce_returns_false_if_coloured_more_than_once]
@@ -45,18 +59,20 @@ scheme testColouringEx =
         ~ pieceCanBeAssignedColour("P2", {"P1", "P4"}, r),
       [pieceCanBeAssignedColour_returns_true_because_it_can_be_added]
         pieceCanBeAssignedColour("P1", {"P7", "P5"}, r),
-      [pieceCanBeAssignedColour_returns_true_even_when_the_piece_is_already_there
-      ]
+      [pieceCanBeAssignedColour_returns_true_even_when_the_piece_is_already_there]
         pieceCanBeAssignedColour("P1", {"P7", "P8", "P1"}, r),
       [setOfAllPieces_is_the_set_of_all_the_pieces_in_the_relation]
         setOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"},
       [setOfAllPieces_is_only_a_partial_set_of_all_the_pieces_in_the_relation]
         ~ (setOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5"}),
+      [setOfAllPieces_is_false_if_a_superset_of_all_the_pieces_in_the_relation]
+        ~ (setOfAllPieces(r) =
+             {"P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"}),
       [assignColour_assigns_a_colour_to_a_piece_according_to_the_relation]
         assignColour(
            "P8", {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, {}, r) =
           {{"P6", "P3", "P2"}, {"P5", "P7"}, {"P4", "P1"}, {"P8"}},
-      [findColouring_returns_a_colouring_of_the_pieces_from_pieceset_and_a_colouring_and_a_relation]
+      [findColouring_returns_a_colouring_of_the_pieces]
         findColouring(pieceset, {}, r) =
           {{"P1", "P4"}, {"P6", "P2", "P3"}, {"P8", "P5"}, {"P7"}},
       [col_returns_a_colouring]
