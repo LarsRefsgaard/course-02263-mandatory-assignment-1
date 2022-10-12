@@ -10,36 +10,30 @@ scheme ColouringBasics =
       areNb : Piece >< Piece >< Relation -> Bool
       areNb(cn1, cn2, r) is (cn1, cn2) isin r \/ (cn2, cn1) isin r,
 
-      -- REMEMBER TO CHECK THAT(p1, p2) AND (p2, p1) does not occur
       isRelation : Relation -> Bool
       isRelation(r) is
-        (all (p1, p2) : Piece >< Piece :- (p1, p2) isin r => p1 ~= p2),
+        (all (p1, p2) : Piece >< Piece :-
+           (p1, p2) isin r => p1 ~= p2 /\ ~ ((p2, p1) isin r)),
 
-      -- Check if a piece is assigned two or more colors. (intersection
-      -- of all sets should be the empty set)
-      pieceIsOnlyColouredOnce : Colouring -> Bool
-      pieceIsOnlyColouredOnce(colouring) is
+      allPiecesOnlyColouredOnce : Colouring -> Bool
+      allPiecesOnlyColouredOnce(colouring) is
         (all c : Colour :-
            c isin colouring =>
              (all c2 : Colour :- c2 isin colouring /\ c ~= c2 => c inter c2 = {})
         ),
 
-      -- auxiliary function: Piece is in coloring
       inColouring : Piece >< Colouring -> Bool
       inColouring(piece, cols) is
         (exists c : Colour :- c isin cols /\ piece isin c),
 
-      -- Check that every piece is colored
       everyPieceIsColoured : Colouring >< Relation -> Bool
       everyPieceIsColoured(cols, r) is
         (all (p1, p2) : (Piece >< Piece) :-
            (p1, p2) isin r => inColouring(p1, cols) /\ inColouring(p2, cols)),
 
-      -- Well formed relation, piece is coloured and coloured only once
-      -- and checks that no two neighbours have the same color
       isCorrectColouring : Colouring >< Relation -> Bool
       isCorrectColouring(cols, r) is
-        isRelation(r) /\ pieceIsOnlyColouredOnce(cols) /\
+        isRelation(r) /\ allPiecesOnlyColouredOnce(cols) /\
         everyPieceIsColoured(cols, r) /\
         (all c : Colour :-
            c isin cols =>
@@ -47,14 +41,10 @@ scheme ColouringBasics =
                 p isin c =>
                   ~ (exists p2 : Piece :- p2 isin c /\ areNb(p, p2, r)))),
 
-      -- Checks if a piece can be assigned a color - i.e. if it is not
-      -- already assigned a color and if it is not a neighbour of a piece
       pieceCanBeAssignedColour : Piece >< Colour >< Relation -> Bool
       pieceCanBeAssignedColour(p, c, r) is
         ~ (exists pn : Piece :- pn isin c /\ areNb(p, pn, r)),
 
-
-      -- returns set of all unique pieces that exist in all the relations
       setOfAllPieces : Relation -> Piece-set
       setOfAllPieces(r) is
         if r = {} then {}
@@ -64,9 +54,6 @@ scheme ColouringBasics =
           end
         end,
 
-      -- for a given piece, it returns a Colouring (which is a Colour-set) with that piece added to it.
-      -- if a piece can be added in an existing Colour, it is added there.
-      -- otherwise, a new Colour is created and the piece is added to it.
       assignColour : Piece >< Colouring >< Colouring >< Relation -> Colouring
       assignColour(p, colouring, accumulator, r) is
         if colouring = {} then accumulator union {{p}}
@@ -79,7 +66,6 @@ scheme ColouringBasics =
           end
         end,
 
-      -- returns a Colouring after assigning all pieces to a Colour, recursively
       findColouring : Piece-set >< Colouring >< Relation -> Colouring
       findColouring(pieceset, colouring, r) is
         if pieceset = {} then colouring

@@ -1,4 +1,4 @@
-./ColouringEx
+././ColouringEx
 
 scheme testColouringEx =
   extend ColouringEx with
@@ -10,35 +10,61 @@ scheme testColouringEx =
          ("P6", "P8"), ("P7", "P8")},
       colouring : Colouring =
         {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}, {"P8"}},
-      pieceset : Piece-set = setOfAllPieces(r)
+      pieceset : Piece-set = setOfAllPieces(r),
+      our_colouring : Colouring = col(r)
 
     test_case
-      [areNb]
+      [areNb_returns_true_if_pieces_are_neighbours]
         areNb("P1", "P2", r),
+      [areNb_returns_true_if_pieces_are_neighbours_reversed]
         areNb("P2", "P1", r),
-      ~ areNb("P1", "P8", r),
-      [isCorrectColouring]
+      [areNb_returns_false_if_pieces_are_not_neighbours]
+        ~ areNb("P1", "P8", r),
+      [areNb_returns_false_if_pieces_are_same]
+        ~ areNb("P1", "P1", r),
+      [isRelation_returns_true_if_r_is_a_relation]
+        isRelation(r),
+      [isRelation_returns_false_if_r_contains_two_of_the_same_piece]
+        ~ isRelation({("P1", "P1"), ("P1", "P2")}),
+      [isRelation_returns_false_if_r_contains_two_of_the_same_pair]
+        ~ isRelation({("P1", "P2"), ("P2", "P1")}),
+      [isCorrectColouring_returns_true_if_colouring_is_correct]
         isCorrectColouring(colouring, r),
-      ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r),
-      [pieceIsOnlyColouredOnce]
-        pieceIsOnlyColouredOnce(colouring),
-      ~ pieceIsOnlyColouredOnce({{"P1", "P4"}, {"P1", "P2", "P3"}}),
-      [everyPieceIsColoured]
+      [isCorrectColouring_returns_false_if_colouring_is_not_correct]
+        ~ isCorrectColouring({{"P1", "P2"}, {"P3", "P4"}}, r),
+      [allPiecesOnlyColouredOnce_returns_true_if_correct]
+        allPiecesOnlyColouredOnce(colouring),
+      [allPiecesOnlyColouredOnce_returns_false_if_coloured_more_than_once]
+        ~ allPiecesOnlyColouredOnce({{"P1", "P4"}, {"P1", "P2", "P3"}}),
+      [everyPieceIsColoured_returns_true_if_correct]
         everyPieceIsColoured(colouring, r),
-      ~ everyPieceIsColoured({{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, r),
-      [pieceCanBeAssignedColour]
+      [everyPieceIsColoured_returns_false_if_not]
+        ~ everyPieceIsColoured(
+             {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, r),
+      [pieceCanBeAssignedColour_returns_false_because_it_cant_be_added]
+        ~ pieceCanBeAssignedColour("P2", {"P1", "P4"}, r),
+      [pieceCanBeAssignedColour_returns_true_because_it_can_be_added]
         pieceCanBeAssignedColour("P1", {"P7", "P5"}, r),
+      [pieceCanBeAssignedColour_returns_true_even_when_the_piece_is_already_there
+      ]
         pieceCanBeAssignedColour("P1", {"P7", "P8", "P1"}, r),
-      ~ pieceCanBeAssignedColour("P2", {"P1", "P4"}, r),
-      [setOfAllPieces]
+      [setOfAllPieces_is_the_set_of_all_the_pieces_in_the_relation]
         setOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"},
-      ~ (setOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5"}),
-      [assignColour]
-        assignColour("P8", {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, {}, r) = {{"P6","P3","P2"},{"P5","P7"},{"P4","P1"},{"P8"}},
-      [findColouring]
-          findColouring(pieceset, {}, r) = {{"P1","P4"},{"P6","P2","P3"},{"P8","P5"},{"P7"}},
-      [ex]
-        col(r) = {{"P1","P4"},{"P6","P2","P3"},{"P8","P5"},{"P7"}}
-
-
+      [setOfAllPieces_is_only_a_partial_set_of_all_the_pieces_in_the_relation]
+        ~ (setOfAllPieces(r) = {"P1", "P2", "P3", "P4", "P5"}),
+      [assignColour_assigns_a_colour_to_a_piece_according_to_the_relation]
+        assignColour(
+           "P8", {{"P1", "P4"}, {"P2", "P3", "P6"}, {"P7", "P5"}}, {}, r) =
+          {{"P6", "P3", "P2"}, {"P5", "P7"}, {"P4", "P1"}, {"P8"}},
+      [findColouring_returns_a_colouring_of_the_pieces_from_pieceset_and_a_colouring_and_a_relation]
+        findColouring(pieceset, {}, r) =
+          {{"P1", "P4"}, {"P6", "P2", "P3"}, {"P8", "P5"}, {"P7"}},
+      [col_returns_a_colouring]
+        col(r) = {{"P1", "P4"}, {"P6", "P2", "P3"}, {"P8", "P5"}, {"P7"}},
+      [our_col_satisfies_allPiecesOnlyColouredOnce]
+        allPiecesOnlyColouredOnce(our_colouring),
+      [our_col_satisfies_everyPieceIsColoured]
+        everyPieceIsColoured(our_colouring, r),
+      [our_col_satisfies_isCorrectColouring]
+        isCorrectColouring(our_colouring, r)
   end
